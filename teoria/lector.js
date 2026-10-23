@@ -62,7 +62,35 @@ function paginar(cap) {
 
 CAPITULOS.forEach(c => { c.paginas = paginar(c); });
 
+const CLAVE_KW = "a2_subrayado_v1";
+const KW_PALABRAS = ["en ningún caso", "en todo caso", "como mínimo", "como máximo", "al menos", "no más de", "fuera de poblado", "dentro de poblado", "en poblado",
+  "obligatoriamente", "obligatorias", "obligatorios", "obligatoria", "obligatorio", "obligación", "prohibidas", "prohibidos", "prohibida", "prohibido", "prohibición",
+  "siempre", "nunca", "jamás", "solamente", "únicamente", "exclusivamente", "sólo", "solo", "salvo", "excepto", "excepción", "excepcionalmente",
+  "no deberá", "no debe", "deberán", "deberá", "deben", "debe", "no podrá", "no puede", "podrán", "podrá", "pueden", "puede",
+  "permitidas", "permitidos", "permitida", "permitido", "recomendable", "aconsejable", "prioridad", "infracción", "sanción", "multa",
+  "interurbanas", "interurbana", "urbanas", "urbana", "autopistas", "autopista", "autovías", "autovía", "arcén", "noveles", "novel", "mínima", "mínimo", "máxima", "máximo"];
+const KW_RE = new RegExp(`(?<![\\p{L}\\d])(${KW_PALABRAS.map(w => w.replace(/ /g, "\\s+")).join("|")})(?![\\p{L}])`, "giu");
+const NUM_RE = /(?<![\p{L}\d.,])(\d+(?:[.,]\d+)?(?:\s?[-–]\s?\d+(?:[.,]\d+)?)?\s?(?:km\/h|kW\/kg|kW|kg|cm³|cm3|mm|cm|metros|metro|m|mg\/l|g\/l|años|año|meses|mes|días|día|horas|hora|h|segundos|segundo|s|minutos|min|puntos|punto|€|euros|%|ºC|°C|bar|CV|cc))(?![\p{L}\d³\/])/gu;
+let subrayado = leer(CLAVE_KW, true);
+
+function resaltar(html) {
+  let dentroA = 0;
+  return html.split(/(<[^>]+>)/).map(t => {
+    if (t.startsWith("<")) {
+      if (/^<a[\s>]/i.test(t)) dentroA++;
+      else if (/^<\/a>/i.test(t)) dentroA = Math.max(0, dentroA - 1);
+      return t;
+    }
+    if (dentroA || !t) return t;
+    return t.replace(NUM_RE, '<span class="kwn">$1</span>').split(/(<span class="kwn">.*?<\/span>)/).map(u => u.startsWith("<span") ? u : u.replace(KW_RE, '<span class="kw">$1</span>')).join("");
+  }).join("");
+}
+
 function enlazar(html) {
+  return resaltar(enlazarBase(html));
+}
+
+function enlazarBase(html) {
   let s = html.replace(/(https?:\/\/[^\s<]+[^\s<.,;:)])/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
   ENLACES.forEach(([texto, url]) => {
     if (s.includes(texto) && !s.includes(url)) s = s.replace(texto, `<a href="${url}" target="_blank" rel="noopener">${texto}</a>`);
@@ -270,6 +298,14 @@ document.querySelectorAll("[data-leer]").forEach(b => b.addEventListener("click"
   else go();
 }));
 document.getElementById("btnCapitulos").addEventListener("click", abrirPanel);
+const btnKw = document.getElementById("btnKw");
+function aplicarSubrayado() {
+  hoja.classList.toggle("sin-kw", !subrayado);
+  btnKw.setAttribute("aria-pressed", subrayado ? "true" : "false");
+  btnKw.title = subrayado ? "Quitar subrayado de palabras clave" : "Subrayar palabras clave";
+}
+btnKw.addEventListener("click", () => { subrayado = !subrayado; guardar(CLAVE_KW, subrayado); aplicarSubrayado(); });
+aplicarSubrayado();
 document.getElementById("btnCerrarPanel").addEventListener("click", cerrarPanel);
 panel.addEventListener("click", e => { if (e.target === panel) cerrarPanel(); });
 visor.addEventListener("click", cerrarVisor);

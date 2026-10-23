@@ -1,7 +1,7 @@
 // Inicio de sesión con usuario y contraseña y sincronización del progreso (Firebase).
 // Se guardan: páginas leídas, posición de lectura, falladas, estadísticas y posición en "Las 200 seguidas".
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult }
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -179,16 +179,26 @@ form.addEventListener("submit", async e => {
 
 const proveedor = new GoogleAuthProvider();
 proveedor.setCustomParameters({ prompt: "select_account" });
+const modoApp = window.navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
+const ua = navigator.userAgent || "";
+const enApp = /FBAN|FBAV|Instagram|Line\/|WhatsApp|GSA\/|; wv\)/i.test(ua);
+function avisoGoogle() {
+  return modoApp
+    ? "Desde el icono de la pantalla de inicio Google no puede volver a la web. Abre la web en Safari o Chrome para entrar con Google, o usa usuario y contraseña."
+    : "Este navegador no deja abrir la ventana de Google. Abre la web en Safari o Chrome, o usa usuario y contraseña.";
+}
 document.getElementById("cGoogle").addEventListener("click", () => {
   err.textContent = "";
+  if (modoApp || enApp) { err.textContent = avisoGoogle(); return; }
   signInWithPopup(auth, proveedor).catch(x => {
-    if (x.code === "auth/popup-blocked" || x.code === "auth/operation-not-supported-in-this-environment") return signInWithRedirect(auth, proveedor);
-    if (x.code === "auth/popup-closed-by-user" || x.code === "auth/cancelled-popup-request") return;
-    if (x.code === "auth/account-exists-with-different-credential") err.textContent = "Ya tienes una cuenta con otro método de acceso.";
+    if (x.code === "auth/popup-closed-by-user" || x.code === "auth/cancelled-popup-request" || x.code === "auth/user-cancelled") return;
+    if (x.code === "auth/popup-blocked") err.textContent = "El navegador ha bloqueado la ventana de Google. Permite las ventanas emergentes para esta web y vuelve a pulsar.";
+    else if (x.code === "auth/operation-not-supported-in-this-environment" || x.code === "auth/web-storage-unsupported") err.textContent = avisoGoogle();
+    else if (x.code === "auth/unauthorized-domain") err.textContent = "Dominio no autorizado para Google.";
+    else if (x.code === "auth/account-exists-with-different-credential") err.textContent = "Ya tienes una cuenta con otro método de acceso.";
     else err.textContent = MENSAJES[x.code] || "No se ha podido entrar con Google. Inténtalo de nuevo.";
   });
 });
-getRedirectResult(auth).catch(() => {});
 
 document.getElementById("cSalir").addEventListener("click", async () => {
   if (subiendo) { clearTimeout(subiendo); await subir(); }

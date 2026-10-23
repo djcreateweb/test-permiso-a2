@@ -3,9 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Permiso A2">
 <link rel="apple-touch-icon" href="icono-180.png">
 <link rel="manifest" href="manifest.json">
@@ -14,7 +11,7 @@
 <meta name="theme-color" content="#0B2545">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230B2545'/><text x='32' y='43' font-size='30' font-family='Arial' font-weight='700' fill='%23E4572E' text-anchor='middle'>A2</text></svg>">
 <link rel="stylesheet" href="../estilos.css?v=20261023">
-<link rel="stylesheet" href="lector.css?v=20261023b">
+<link rel="stylesheet" href="lector.css?v=20261023c">
 </head>
 <body>
 <header class="barra">
@@ -54,6 +51,7 @@
       <ul>
         <li>Lee los capítulos en orden la primera vez. Pasa de página con las flechas, deslizando el dedo o con las teclas ← y →.</li>
         <li>Los recuadros <b>Clave de examen</b> resumen lo que la DGT pregunta con más frecuencia; los de <b>Pregunta trampa</b>, los fallos más habituales; los de <b>Novedad 2026</b>, lo que cambió el 1 de octubre de 2026.</li>
+        <li>Las <span class="kw">palabras clave</span> (obligatorio, prohibido, siempre, solo, salvo, interurbana…) van subrayadas y las <span class="kwn">cifras</span> (20 km/h, 1,5 m, 4 puntos…) resaltadas. Puedes quitarlo con el botón <b>Subrayado</b>.</li>
         <li>Toca cualquier foto para verla en grande.</li>
         <li>Pulsa <b>Entrar</b> y crea tu usuario y contraseña para guardar el progreso en tu cuenta y seguir en el ordenador o en el móvil.</li>
         <li>Cada capítulo muestra el porcentaje que has leído según las páginas que hayas abierto.</li>
@@ -74,6 +72,7 @@
       <div class="l-der">
         <span class="l-pct" id="lPct"></span>
         <span class="l-pag" id="lPag"></span>
+        <button type="button" class="btn-sec btn-mini btn-kw" id="btnKw" aria-pressed="true" aria-label="Subrayar palabras clave"><span class="kw-ico">ab</span><span class="kw-txt">Subrayado</span></button>
         <button type="button" class="btn-sec btn-mini" id="btnCapitulos">Capítulos</button>
       </div>
     </div>
@@ -247,7 +246,7 @@
 <script src="capitulos.js?v=20261023"></script>
 <script src="preguntas.js?v=20261023"></script>
 <script src="test.js?v=20261023"></script>
-<script src="lector.js?v=20261023"></script>
+<script src="lector.js?v=20261023c"></script>
 <script src="firebase-config.js?v=20261023"></script>
 <script>if (window.FIREBASE_CONFIG) { const s = document.createElement("script"); s.type = "module"; s.src = "cuenta.js?v=1"; document.body.appendChild(s); }</script>
 </body>
