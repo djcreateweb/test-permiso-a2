@@ -317,3 +317,9 @@ mark[class^="m-"]{background:none;background-repeat:no-repeat;background-size:10
   .btn-voz{min-width:40px;justify-content:center}
   .l-tit{max-width:24vw}
 }
+/* transición entre secciones */
+.tx-js .vista.activa{animation:none}
+.tx-in{animation:txIn .62s cubic-bezier(.16,.84,.3,1) both;animation-delay:var(--tx-d,0ms)}
+@keyframes txIn{0%{opacity:0;filter:blur(12px);transform:translateY(18px) scale(.97)}55%{opacity:1}100%{opacity:1;filter:blur(0);transform:none}}
+.tx-barrido{position:fixed;inset:0;z-index:70;pointer-events:none;background:radial-gradient(circle at var(--x) var(--y),var(--acc) 0,var(--acc) 18%,var(--navy) 62%);clip-path:circle(0 at var(--x) var(--y));animation:txBarrido .68s cubic-bezier(.65,0,.35,1) forwards}
+@keyframes txBarrido{0%{clip-path:circle(0 at var(--x) var(--y));opacity:.92}42%{clip-path:circle(150% at var(--x) var(--y));opacity:.92}100%{clip-path:circle(150% at var(--x) var(--y));opacity:0}}
