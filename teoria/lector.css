@@ -296,3 +296,24 @@ mark[class^="m-"]{background:none;background-repeat:no-repeat;background-size:10
 .borrar-fila .btn-borrar{border:0;background:none;padding:4px 0;font-size:.82rem;font-weight:700;color:var(--mal);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .fin-cap .btn-borrar{color:var(--mal)}
 .cap .estado .paginas{display:block;margin-top:4px;font-size:.72rem;font-weight:700;color:var(--texto);background:var(--fondo);border:1px solid var(--linea);border-radius:999px;padding:1px 8px}
+/* lectura en voz alta */
+.btn-voz{display:inline-flex;align-items:center;gap:6px}
+.btn-voz svg{width:18px;height:18px;fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.btn-voz svg path:last-child{fill:none}
+.btn-voz.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.voz-barra{position:sticky;top:64px;z-index:14;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px;padding:10px 12px;background:var(--tarjeta);border:1px solid var(--linea);border-left:5px solid var(--acc);border-radius:12px;box-shadow:var(--sombra);font-size:.85rem}
+.voz-campo{display:inline-flex;align-items:center;gap:6px;color:var(--suave);font-weight:600}
+.voz-campo select{font:inherit;font-size:16px;padding:5px 8px;border:1px solid var(--linea);border-radius:8px;background:var(--fondo);color:var(--texto);max-width:200px}
+.voz-check{display:inline-flex;align-items:center;gap:6px;color:var(--suave);font-weight:600}
+.voz-check input{width:18px;height:18px;accent-color:var(--acc)}
+.voz-aviso{flex-basis:100%;margin:0;color:var(--mal);font-size:.8rem}
+.hoja .leyendo{background:rgba(31,111,178,.10);box-shadow:-6px 0 0 rgba(31,111,178,.10),6px 0 0 rgba(31,111,178,.10);border-radius:6px;transition:background .2s}
+.hoja li.leyendo::before{background:#1F6FB2}
+.hoja tr.leyendo td{background:rgba(31,111,178,.12)!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .hoja .leyendo{background:rgba(125,182,242,.14);box-shadow:-6px 0 0 rgba(125,182,242,.14),6px 0 0 rgba(125,182,242,.14)}}
+@media (max-width:760px){
+  .voz-barra{top:calc(58px + env(safe-area-inset-top));gap:8px}
+  .voz-campo select{max-width:150px}
+  .btn-voz{min-width:40px;justify-content:center}
+  .l-tit{max-width:24vw}
+}
