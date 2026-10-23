@@ -342,7 +342,7 @@ function tarjetaCap(c, i) {
   const pct = pctCap(c);
   const completo = pct >= 100;
   b.className = "cap" + (completo ? " leido" : "") + (vLector.classList.contains("activa") && i === pos.c ? " actual" : "");
-  b.innerHTML = `<span class="num">${completo ? "✓" : String(c.n).padStart(2, "0")}</span><span class="txt"><b></b><small></small><span class="pct-barra"><span style="width:${pct}%"></span></span></span><span class="estado"><b>${pct} %</b>leído</span>`;
+  b.innerHTML = `<span class="num">${completo ? "✓" : String(c.n).padStart(2, "0")}</span><span class="txt"><b></b><small></small><span class="pct-barra"><span style="width:${pct}%"></span></span></span><span class="estado"><b>${pct} %</b>leído<span class="paginas">${vistasCap(c).length}/${c.paginas.length} ${c.paginas.length === 1 ? "página" : "páginas"}</span></span>`;
   b.querySelector("b").textContent = c.titulo;
   b.querySelector("small").textContent = c.desc;
   b.addEventListener("click", () => { cerrarPanel(); ir(i, 0, 1); });

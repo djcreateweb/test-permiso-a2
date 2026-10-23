@@ -295,3 +295,4 @@ mark[class^="m-"]{background:none;background-repeat:no-repeat;background-size:10
 .borrar-fila{display:flex;justify-content:flex-end;margin:-10px 0 12px}
 .borrar-fila .btn-borrar{border:0;background:none;padding:4px 0;font-size:.82rem;font-weight:700;color:var(--mal);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .fin-cap .btn-borrar{color:var(--mal)}
+.cap .estado .paginas{display:block;margin-top:4px;font-size:.72rem;font-weight:700;color:var(--texto);background:var(--fondo);border:1px solid var(--linea);border-radius:999px;padding:1px 8px}
