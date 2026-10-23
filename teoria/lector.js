@@ -36,6 +36,21 @@ if (!leer("a2_teoria_v2", false)) {
   if (pv && pv.c >= 18) { pv.c += 1; guardar(CLAVE_POS_TEORIA, pv); }
   guardar("a2_teoria_v2", true);
 }
+// v3: el capítulo de trucos pasa del 19 al 2; los capítulos 2-18 pasan a 3-19
+if (!leer("a2_teoria_v3", false)) {
+  const mapN = n => (n === 19 ? 2 : (n >= 2 && n <= 18 ? n + 1 : n));
+  const mapC = c => (c === 18 ? 1 : (c >= 1 && c <= 17 ? c + 1 : c));
+  const nuevo = {};
+  Object.keys(leido).forEach(k => { nuevo[mapN(Number(k))] = leido[k]; });
+  leido = nuevo;
+  guardar(CLAVE_LEIDO, leido);
+  const pv = leer(CLAVE_POS_TEORIA, null);
+  if (pv && typeof pv.c === "number") guardar(CLAVE_POS_TEORIA, { c: mapC(pv.c), p: pv.p });
+  const pe = leer("a2_teoria_pend_v1", null);
+  if (pe && pe.n) { pe.n = mapN(pe.n); guardar("a2_teoria_pend_v1", pe); }
+  guardar("a2_teoria_v3", true);
+  if (leer("a2_sync_uid", null)) { try { localStorage.setItem("a2_sync_t", String(Date.now())); } catch (e) {} }
+}
 
 const CLAVE_PEND = "a2_teoria_pend_v1";
 let pend = { n: null, pags: [] };
