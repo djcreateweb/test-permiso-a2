@@ -266,3 +266,4 @@ mark[class^="m-"]{color:inherit;padding:.05em .18em;margin:0 -.04em;border-radiu
 .leyenda{display:flex;flex-wrap:wrap;gap:6px 10px;margin:-6px 0 12px;font-size:.78rem}
 .leyenda mark{padding:2px 8px!important;border-radius:6px!important;font-weight:600}
 .leyenda.oculto{display:none}
+@media (max-width:760px){.leyenda{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;font-size:.72rem;gap:6px;margin-right:-14px;padding-right:14px}.leyenda::-webkit-scrollbar{display:none}.leyenda mark{white-space:nowrap;flex:none}}
