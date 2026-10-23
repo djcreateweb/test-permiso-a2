@@ -37,8 +37,16 @@ if (!leer("a2_teoria_v2", false)) {
   guardar("a2_teoria_v2", true);
 }
 
+const CLAVE_PEND = "a2_teoria_pend_v1";
+let pend = { n: null, pags: [] };
+function guardarPend() { guardar(CLAVE_PEND, pend.pags.length ? pend : null); }
+function vistasCap(cap) {
+  const v = new Set(leido[cap.n] || []);
+  if (pend.n === cap.n) pend.pags.forEach(x => v.add(x));
+  return [...v].filter(p => p < cap.paginas.length);
+}
 function pctCap(cap) {
-  const v = (leido[cap.n] || []).filter(p => p < cap.paginas.length).length;
+  const v = vistasCap(cap).length;
   return Math.round((v / cap.paginas.length) * 100);
 }
 let pos = { c: 0, p: 0 };
@@ -239,17 +247,51 @@ function pintar(dir) {
   hoja.querySelectorAll("[data-test-cap]").forEach(b => b.addEventListener("click", () => empezar("capitulo", Number(b.dataset.testCap))));
   hoja.querySelectorAll("[data-test-modo]").forEach(b => b.addEventListener("click", () => empezar(b.dataset.testModo)));
   hoja.querySelectorAll("[data-ir-test]").forEach(b => b.addEventListener("click", () => mostrar(b.dataset.irTest)));
-  const vis = leido[cap.n] || [];
-  if (!vis.includes(pos.p)) vis.push(pos.p);
-  leido[cap.n] = vis;
-  guardar(CLAVE_LEIDO, leido);
+  if (!(leido[cap.n] || []).includes(pos.p)) {
+    if (pend.n !== cap.n) pend = { n: cap.n, pags: [] };
+    if (!pend.pags.includes(pos.p)) pend.pags.push(pos.p);
+    guardarPend();
+  }
   document.getElementById("lPct").textContent = `${pctCap(cap)} % leído`;
   guardar(CLAVE_POS_TEORIA, pos);
   const h = `#c${cap.n}-p${pos.p + 1}`;
   if (location.hash !== h) history.replaceState(null, "", h);
 }
 
+function preguntarPend(seguir) {
+  if (!pend.pags.length) { if (seguir) seguir(); return; }
+  const cap = CAPITULOS.find(x => x.n === pend.n);
+  if (!cap) { pend = { n: null, pags: [] }; guardarPend(); if (seguir) seguir(); return; }
+  const n = pend.pags.length;
+  const d = document.getElementById("dialogo");
+  const si = document.getElementById("dSi"), no = document.getElementById("dNo");
+  document.getElementById("dTexto").innerHTML = `Sales del <b>capítulo ${cap.n} · ${cap.titulo}</b> después de abrir ${n === 1 ? "1 página nueva" : n + " páginas nuevas"}.<br><br>¿Quieres que ${n === 1 ? "cuente" : "cuenten"} en tu porcentaje estudiado?`;
+  si.textContent = "Sí, contar como estudiado";
+  no.textContent = "No, solo estaba mirando";
+  d.classList.add("d-pend");
+  d.classList.remove("oculto");
+  const fin = contar => {
+    if (contar) {
+      const vis = leido[cap.n] || [];
+      pend.pags.forEach(x => { if (!vis.includes(x)) vis.push(x); });
+      leido[cap.n] = vis;
+      guardar(CLAVE_LEIDO, leido);
+    }
+    pend = { n: null, pags: [] };
+    guardarPend();
+    d.classList.add("oculto");
+    d.classList.remove("d-pend");
+    si.textContent = "Aceptar";
+    no.textContent = "Cancelar";
+    if (vPortada.classList.contains("activa")) pintarPortada();
+    if (seguir) seguir();
+  };
+  si.onclick = () => fin(true);
+  no.onclick = () => fin(false);
+}
+
 function ir(c, p, dir) {
+  if (pend.pags.length && CAPITULOS[c].n !== pend.n) { preguntarPend(() => ir(c, p, dir)); return; }
   const d = dir !== undefined ? dir : (c > pos.c || (c === pos.c && p > pos.p) ? 1 : -1);
   pos = { c, p };
   mostrarLector();
@@ -294,7 +336,7 @@ function pintarPortada() {
   lista.innerHTML = "";
   CAPITULOS.forEach((c, i) => lista.appendChild(tarjetaCap(c, i)));
   const totalPags = CAPITULOS.reduce((a, c) => a + c.paginas.length, 0);
-  const vistas = CAPITULOS.reduce((a, c) => a + (leido[c.n] || []).filter(p => p < c.paginas.length).length, 0);
+  const vistas = CAPITULOS.reduce((a, c) => a + vistasCap(c).length, 0);
   document.getElementById("barraTotal").style.width = `${(vistas / totalPags) * 100}%`;
   document.getElementById("txtProgreso").textContent = vistas ? `Has leído el ${Math.round((vistas / totalPags) * 100)} % de la teoría (${vistas} de ${totalPags} páginas).` : `${CAPITULOS.length} capítulos · ${totalPags} páginas para leer.`;
   const guardada = leer(CLAVE_POS_TEORIA, null);
@@ -388,5 +430,16 @@ function desdeHash() {
   return true;
 }
 
+const mostrarBase = mostrar;
+mostrar = function (nombre) {
+  if (nombre !== "lector" && vLector.classList.contains("activa") && pend.pags.length) { preguntarPend(() => mostrarBase(nombre)); return; }
+  mostrarBase(nombre);
+};
+
 window.addEventListener("hashchange", desdeHash);
-if (!arranqueTest() && !desdeHash()) mostrar("portada");
+const pendGuardado = leer(CLAVE_PEND, null);
+const capHash = (location.hash.match(/^#c(\d+)-p\d+$/) || [])[1];
+if (pendGuardado && pendGuardado.pags && pendGuardado.pags.length) pend = pendGuardado;
+const arrancaTest = arranqueTest();
+if (!arrancaTest && !desdeHash()) mostrar("portada");
+if (pend.pags.length && (arrancaTest || Number(capHash) !== pend.n)) preguntarPend(null);
