@@ -8,6 +8,7 @@
   }
   const synth = window.speechSynthesis;
   const CLAVE = "a2_voz_v1";
+  let INDICE = null;
   const prefs = Object.assign({ rate: 1, voz: "", seguir: true }, leer(CLAVE, {}));
   const bPlay = document.getElementById("vozPlay");
   const bParar = document.getElementById("vozParar");
@@ -41,15 +42,22 @@
   function cargarVoces() {
     lista = voces();
     selVoz.innerHTML = "";
+    if (INDICE) {
+      const o = document.createElement("option");
+      o.value = "neural";
+      o.textContent = "Dora · alta calidad";
+      selVoz.appendChild(o);
+    }
     lista.forEach(v => {
       const o = document.createElement("option");
       o.value = v.name;
       o.textContent = `${v.name.replace(/Microsoft |Google |\(.*?\)/g, "").trim() || v.name} · ${v.lang}`;
       selVoz.appendChild(o);
     });
-    if (prefs.voz && lista.some(v => v.name === prefs.voz)) selVoz.value = prefs.voz;
+    if (INDICE && (!prefs.voz || prefs.voz === "neural" || !lista.some(v => v.name === prefs.voz))) selVoz.value = "neural";
+    else if (prefs.voz && lista.some(v => v.name === prefs.voz)) selVoz.value = prefs.voz;
     const femenina = lista.some(v => tiene(v.name.toLowerCase(), FEMENINAS));
-    aviso.textContent = !lista.length
+    aviso.textContent = INDICE ? "" : !lista.length
       ? "Tu dispositivo no tiene voces en español. Instálalas en los ajustes de voz del sistema."
       : femenina ? "" : "No encuentro una voz femenina en español en este dispositivo. En iPhone: Ajustes › Accesibilidad › Contenido leído › Voces › Español › Mónica.";
     aviso.classList.toggle("oculto", !aviso.textContent);
@@ -79,6 +87,13 @@
       .replace(/(\d)\s?h(?![\p{L}\d])/gu, "$1 horas")
       .replace(/(\d)\s?€/g, "$1 euros")
       .replace(/(\d)\s?%/g, "$1 por ciento")
+      .replace(/(?<![\p{L}\d])DGT(?![\p{L}\d])/gu, "de ge te")
+      .replace(/(?<![\p{L}\d])ITV(?![\p{L}\d])/gu, "i te uve")
+      .replace(/(?<![\p{L}\d])ABS(?![\p{L}\d])/gu, "a be ese")
+      .replace(/(?<![\p{L}\d])CBS(?![\p{L}\d])/gu, "ce be ese")
+      .replace(/(?<![\p{L}\d])A2(?![\p{L}\d])/gu, "A dos")
+      .replace(/(?<![\p{L}\d])A1(?![\p{L}\d])/gu, "A uno")
+      .replace(/(?<![\p{L}\d])nº/gu, "número")
       .replace(/\bRD\b/g, "Real Decreto")
       .replace(/\bRGC\b/g, "Reglamento General de Circulación")
       .replace(/\bVMP\b/g, "vehículos de movilidad personal")
@@ -112,20 +127,40 @@
     }
     return el.textContent;
   }
-  function recoger() {
+  function elementos() {
     const els = [...hoja.querySelectorAll(".banda h1, .banda p, h2, h3, p, li, .recuadro .r-cab, tbody tr, .figura-pie")]
       .filter(el => !el.closest(".fin-cap, .borrar-fila, .modos-t, figure"));
-    const cola = [];
+    const out = [];
     els.forEach(el => {
       let t = textoDe(el);
       if (el.matches(".recuadro .r-cab")) t = t.replace(/\s*·\s*/g, ". ");
       t = normalizar(t);
-      if (t.length < 2) return;
-      trozos(t).forEach(txt => cola.push({ el, txt }));
+      if (t.length >= 2) out.push({ el, txt: t });
+    });
+    return out;
+  }
+  function huella(t) {
+    let h = 5381;
+    for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0;
+    return h.toString(36);
+  }
+  window.__vozElementos = () => elementos().map(e => e.txt);
+  fetch("audio/indice.json?v=" + (window.AUDIO_VER || "1")).then(r => r.ok ? r.json() : null).then(j => { INDICE = j; cargarVoces(); }).catch(() => {});
+  function recoger() {
+    const cap = CAPITULOS[pos.c];
+    const clave = `c${cap.n}-p${pos.p + 1}`;
+    const pista = selVoz.value === "neural" && INDICE ? INDICE[clave] : null;
+    const cola = [];
+    elementos().forEach(({ el, txt }, i) => {
+      if (pista && pista[i] === huella(txt)) cola.push({ el, src: `audio/${clave}-${i}.mp3` });
+      else trozos(txt).forEach(t => cola.push({ el, txt: t }));
     });
     return cola;
   }
 
+  const reproductor = new Audio();
+  reproductor.preload = "auto";
+  function elementosTxt(el) { const e = elementos().find(x => x.el === el); return e ? e.txt : el.textContent; }
   let cola = [], idx = 0, activo = false, pausado = false, marcado = null, gen = 0;
   function marcar(el) {
     if (marcado === el) return;
@@ -137,14 +172,23 @@
     if (r.top < 90 || r.bottom > window.innerHeight - 150) el.scrollIntoView({ block: "center", behavior: "smooth" });
   }
   function vozElegida() {
-    return lista.find(v => v.name === selVoz.value) || lista[0] || null;
+    return lista.find(v => v.name === selVoz.value) || lista.find(v => tiene(v.name.toLowerCase(), FEMENINAS)) || lista[0] || null;
   }
   function hablar() {
     const mi = gen;
     if (!activo || pausado) return;
     if (idx >= cola.length) { finPagina(); return; }
-    const { el, txt } = cola[idx];
+    const { el, txt, src } = cola[idx];
     marcar(el);
+    if (src) {
+      reproductor.src = src;
+      reproductor.playbackRate = Number(selVel.value) || 1;
+      reproductor.onended = () => { if (mi !== gen || !activo || pausado) return; idx++; hablar(); };
+      reproductor.onerror = () => { if (mi !== gen) return; cola.splice(idx, 1, ...trozos(elementosTxt(el)).map(t => ({ el, txt: t }))); hablar(); };
+      const pr = reproductor.play();
+      if (pr && pr.catch) pr.catch(() => {});
+      return;
+    }
     const u = new SpeechSynthesisUtterance(txt);
     const v = vozElegida();
     if (v) { u.voice = v; u.lang = v.lang; } else u.lang = "es-ES";
@@ -162,6 +206,7 @@
   function empezarPagina() {
     gen++;
     synth.cancel();
+    reproductor.pause();
     cola = recoger();
     idx = 0;
     pausado = false;
@@ -175,14 +220,16 @@
   }
   function pausar() {
     pausado = true;
+    if (cola[idx] && cola[idx].src && !reproductor.paused) { reproductor.pause(); actualizarUI(); return; }
     gen++;
     synth.cancel();
     actualizarUI();
   }
   function reanudar() {
     pausado = false;
-    gen++;
     actualizarUI();
+    if (cola[idx] && cola[idx].src && reproductor.src && reproductor.currentTime > 0 && !reproductor.ended) { reproductor.play(); return; }
+    gen++;
     hablar();
   }
   function parar() {
@@ -190,6 +237,7 @@
     pausado = false;
     gen++;
     synth.cancel();
+    reproductor.pause();
     marcar(null);
     barra.classList.add("oculto");
     actualizarUI();
@@ -209,13 +257,13 @@
   btnVoz.addEventListener("click", () => { if (activo) parar(); else iniciar(); });
   bPlay.addEventListener("click", () => { if (!activo) iniciar(); else if (pausado) reanudar(); else pausar(); });
   bParar.addEventListener("click", parar);
-  selVel.addEventListener("change", () => { guardarPrefs(); if (activo && !pausado) { gen++; synth.cancel(); hablar(); } });
-  selVoz.addEventListener("change", () => { guardarPrefs(); if (activo && !pausado) { gen++; synth.cancel(); hablar(); } });
+  selVel.addEventListener("change", () => { guardarPrefs(); reproductor.playbackRate = Number(selVel.value) || 1; if (activo && !pausado && !(cola[idx] && cola[idx].src)) { gen++; synth.cancel(); hablar(); } });
+  selVoz.addEventListener("change", () => { guardarPrefs(); if (activo) empezarPagina(); });
   chkSeguir.addEventListener("change", guardarPrefs);
   hoja.addEventListener("dblclick", e => {
     if (!activo) return;
     const i = cola.findIndex(c => c.el === e.target.closest("p, li, h2, h3, tr, .r-cab"));
-    if (i >= 0) { idx = i; gen++; synth.cancel(); pausado = false; actualizarUI(); hablar(); }
+    if (i >= 0) { idx = i; gen++; synth.cancel(); reproductor.pause(); pausado = false; actualizarUI(); hablar(); }
   });
 
   const pintarAnterior = pintar;
@@ -228,6 +276,6 @@
     if (nombre !== "lector" && activo) parar();
     mostrarAnterior(nombre);
   };
-  window.addEventListener("pagehide", () => synth.cancel());
+  window.addEventListener("pagehide", () => { synth.cancel(); reproductor.pause(); });
   actualizarUI();
 })();
