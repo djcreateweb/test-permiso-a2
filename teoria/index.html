@@ -25,6 +25,7 @@
     <button type="button" class="nav-btn" data-ir="inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2.5 2.5L16 9M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg>Test</button>
     <button type="button" class="nav-btn" data-ir="falladas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9 9l6 6M15 9l-6 6"/></svg>Falladas <span class="contador" id="navFalladas">0</span></button>
     <a class="nav-btn nav-desc" href="Guia_Teorico_A2.pdf" download>PDF</a>
+    <button type="button" class="nav-btn nav-cuenta oculto" id="btnCuenta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM3.5 21a8.5 8.5 0 0 1 17 0"/></svg><span>Entrar</span></button>
   </nav>
 </header>
 
@@ -54,6 +55,7 @@
         <li>Lee los capítulos en orden la primera vez. Pasa de página con las flechas, deslizando el dedo o con las teclas ← y →.</li>
         <li>Los recuadros <b>Clave de examen</b> resumen lo que la DGT pregunta con más frecuencia; los de <b>Pregunta trampa</b>, los fallos más habituales; los de <b>Novedad 2026</b>, lo que cambió el 1 de octubre de 2026.</li>
         <li>Toca cualquier foto para verla en grande.</li>
+        <li>Pulsa <b>Entrar</b> y crea tu usuario y contraseña para guardar el progreso en tu cuenta y seguir en el ordenador o en el móvil.</li>
         <li>Cada capítulo muestra el porcentaje que has leído según las páginas que hayas abierto.</li>
         <li>Al final de cada capítulo tienes un test solo con las preguntas de ese tema. Termina con el repaso exprés (capítulo 18), los trucos contra las trampas de la DGT (capítulo 19) y el examen DGT.</li>
       </ul>
@@ -208,6 +210,31 @@
   </div>
 </div>
 
+<div id="cuenta" class="dialogo oculto" role="dialog" aria-modal="true" aria-labelledby="cTit">
+  <div class="dialogo-caja cuenta-caja">
+    <div class="cuenta-cab"><b id="cTit">Tu cuenta</b><button type="button" class="visor-x cuenta-x" id="cCerrar" aria-label="Cerrar">✕</button></div>
+    <div id="cPanelEntrar">
+      <p class="mini">Guarda tu progreso (páginas leídas, falladas y estadísticas) y continúa en el ordenador o en el móvil.</p>
+      <div class="c-tabs"><button type="button" class="on" data-cmodo="entrar">Entrar</button><button type="button" data-cmodo="crear">Crear cuenta</button></div>
+      <form id="cuentaForm" novalidate>
+        <label for="cUsuario">Usuario</label>
+        <input id="cUsuario" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="text" required>
+        <label for="cPass">Contraseña</label>
+        <input id="cPass" name="password" type="password" autocomplete="current-password" required>
+        <p class="mini" id="cAyuda">Entra con el usuario y la contraseña que creaste.</p>
+        <p class="c-error" id="cError" aria-live="polite"></p>
+        <button type="submit" class="btn-pri c-enviar" id="cEnviar">Entrar</button>
+      </form>
+    </div>
+    <div id="cPanelDentro" class="oculto">
+      <p>Has entrado como <b id="cNombre"></b>.</p>
+      <p class="c-estado" id="cEstado">Progreso sincronizado</p>
+      <p class="mini">Entra con el mismo usuario en otro dispositivo y seguirás donde lo dejaste.</p>
+      <button type="button" class="btn-sec c-enviar" id="cSalir">Cerrar sesión</button>
+    </div>
+  </div>
+</div>
+
 <nav class="tabbar" aria-label="Navegación principal">
   <button type="button" class="tab" data-vista="portada"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span>Inicio</span></button>
   <button type="button" class="tab" data-leer><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H11v17H5.5A1.5 1.5 0 0 0 4 21.5zM20 4.5A1.5 1.5 0 0 0 18.5 3H13v17h5.5a1.5 1.5 0 0 1 1.5 1.5z"/></svg><span>Leer</span></button>
@@ -219,5 +246,7 @@
 <script src="preguntas.js"></script>
 <script src="test.js"></script>
 <script src="lector.js"></script>
+<script src="firebase-config.js"></script>
+<script>if (window.FIREBASE_CONFIG) { const s = document.createElement("script"); s.type = "module"; s.src = "cuenta.js?v=1"; document.body.appendChild(s); }</script>
 </body>
 </html>

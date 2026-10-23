@@ -210,3 +210,24 @@ button,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   .apilable td:first-child::before{color:#BFD7EA}
   .apilable td:last-child{padding-bottom:10px}
 }
+/* cuenta */
+.nav-cuenta.dentro{background:rgba(255,255,255,.16)}
+.nav-cuenta span{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cuenta-caja{max-width:400px;position:relative}
+.cuenta-cab{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:1.1rem}
+.cuenta-x{position:static;background:var(--fondo);color:var(--texto);width:36px;height:36px}
+.c-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--fondo);border-radius:10px;padding:4px;margin:12px 0}
+.c-tabs button{border:0;border-radius:8px;padding:9px;background:none;color:var(--suave);font-weight:700}
+.c-tabs button.on{background:var(--tarjeta);color:var(--texto);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+#cuentaForm label{display:block;font-size:.85rem;font-weight:700;margin:10px 0 4px}
+#cuentaForm input{width:100%;font:inherit;font-size:16px;padding:12px;border:2px solid var(--linea);border-radius:10px;background:var(--tarjeta);color:var(--texto)}
+#cuentaForm input:focus{outline:none;border-color:var(--acc)}
+.c-error{color:var(--mal);font-weight:600;min-height:1.2em;margin:8px 0 !important;font-size:.9rem}
+.c-enviar{width:100%;min-height:48px;margin-top:4px}
+.c-estado{color:var(--ok);font-weight:700;margin:0 0 8px !important}
+@media (max-width:760px){
+  .barra .nav .nav-cuenta{display:flex}
+  .barra .nav .nav-cuenta.oculto{display:none}
+  .dialogo{align-items:end;padding:0}
+  .dialogo-caja{max-width:none;border-radius:18px 18px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+}
