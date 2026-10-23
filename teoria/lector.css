@@ -287,3 +287,11 @@ mark[class^="m-"]{background:none;background-repeat:no-repeat;background-size:10
 .dialogo.d-pend .dialogo-acc{flex-direction:column-reverse;align-items:stretch}
 .dialogo.d-pend .dialogo-acc button{width:100%;min-height:46px}
 .dialogo.d-pend #dTexto{line-height:1.5}
+.cap-env{position:relative}
+.cap-env>.cap{width:100%}
+.cap.con-borrar{padding-bottom:30px}
+.cap-borrar{position:absolute;right:12px;bottom:7px;border:0;background:none;padding:2px 4px;font-size:.74rem;font-weight:700;color:var(--mal);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.cap-borrar:hover{color:var(--acc)}
+.borrar-fila{display:flex;justify-content:flex-end;margin:-10px 0 12px}
+.borrar-fila .btn-borrar{border:0;background:none;padding:4px 0;font-size:.82rem;font-weight:700;color:var(--mal);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.fin-cap .btn-borrar{color:var(--mal)}

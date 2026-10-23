@@ -211,12 +211,14 @@ function pintar(dir) {
   let html = "";
   if (pos.p === 0) {
     html += `<div class="banda"><span class="n">${String(cap.n).padStart(2, "0")}</span><div><h1>${cap.titulo}</h1><p>${cap.desc}</p></div></div>`;
+    if (pctCap(cap) > 0) html += `<div class="borrar-fila"><button type="button" class="btn-borrar">Borrar lo marcado como leído en este capítulo</button></div>`;
   }
   html += cap.banco ? paginaBanco() : bloques.map(bloqueHTML).join("");
   if (pos.p === total - 1) {
     const sig = CAPITULOS[pos.c + 1];
     html += `<div class="fin-cap"><p><b>Fin del capítulo ${cap.n}.</b> ${cap.banco ? "" : "Comprueba lo que acabas de estudiar con las preguntas de este tema."}</p><div class="acc">
       ${cap.banco ? "" : botonTest(cap)}
+      <button type="button" class="btn-sec btn-borrar">Borrar lo leído de este capítulo</button>
       ${sig ? `<button type="button" class="btn-sec" data-ir-cap="${pos.c + 1}">Siguiente: ${sig.titulo} →</button>` : `<button type="button" class="btn-sec" data-ir-test="inicio">Ir al test completo</button>`}
     </div></div>`;
   }
@@ -243,6 +245,7 @@ function pintar(dir) {
   btnSig.disabled = pos.c === CAPITULOS.length - 1 && pos.p === total - 1;
   btnSig.querySelector("small").textContent = pos.p === total - 1 ? "Siguiente capítulo" : "Siguiente";
   hoja.querySelectorAll("figure[data-src]").forEach(f => f.addEventListener("click", () => abrirVisor(f.dataset.src, f.dataset.cap)));
+  hoja.querySelectorAll(".btn-borrar").forEach(b => b.addEventListener("click", () => borrarLeido(cap)));
   hoja.querySelectorAll("[data-ir-cap]").forEach(b => b.addEventListener("click", () => ir(Number(b.dataset.irCap), 0)));
   hoja.querySelectorAll("[data-test-cap]").forEach(b => b.addEventListener("click", () => empezar("capitulo", Number(b.dataset.testCap))));
   hoja.querySelectorAll("[data-test-modo]").forEach(b => b.addEventListener("click", () => empezar(b.dataset.testModo)));
@@ -328,7 +331,34 @@ function tarjetaCap(c, i) {
   b.querySelector("b").textContent = c.titulo;
   b.querySelector("small").textContent = c.desc;
   b.addEventListener("click", () => { cerrarPanel(); ir(i, 0, 1); });
-  return b;
+  const env = document.createElement("div");
+  env.className = "cap-env";
+  env.appendChild(b);
+  if (pct > 0) {
+    b.classList.add("con-borrar");
+    const x = document.createElement("button");
+    x.type = "button";
+    x.className = "cap-borrar";
+    x.textContent = "Borrar leído";
+    x.setAttribute("aria-label", `Borrar lo marcado como leído del capítulo ${c.n}`);
+    x.addEventListener("click", e => { e.stopPropagation(); borrarLeido(c); });
+    env.appendChild(x);
+  }
+  return env;
+}
+
+function borrarLeido(c) {
+  confirmar(`¿Borrar lo marcado como leído del capítulo ${c.n} · ${c.titulo}? Su porcentaje volverá a 0 %.`, () => {
+    delete leido[c.n];
+    guardar(CLAVE_LEIDO, leido);
+    if (pend.n === c.n) { pend = { n: null, pags: [] }; guardarPend(); }
+    if (vPortada.classList.contains("activa")) pintarPortada();
+    if (!panel.classList.contains("oculto")) abrirPanel();
+    if (vLector.classList.contains("activa") && CAPITULOS[pos.c] === c) {
+      document.getElementById("lPct").textContent = `${pctCap(c)} % leído`;
+      hoja.querySelectorAll(".btn-borrar").forEach(b => b.classList.add("oculto"));
+    }
+  });
 }
 
 function pintarPortada() {
