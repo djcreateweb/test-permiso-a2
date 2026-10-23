@@ -62,10 +62,11 @@ function mostrar(nombre) {
   Object.values(vistas).forEach(v => v.classList.remove("activa"));
   vistas[nombre].classList.add("activa");
   window.scrollTo({ top: 0, behavior: "smooth" });
-  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("on"));
-  const grupo = { portada: "portada", lector: "portada", inicio: "inicio", test: "inicio", resultado: "inicio", falladas: "falladas" }[nombre];
-  const activo = document.querySelector(grupo === "portada" ? '.nav-btn[data-vista="portada"]' : `.nav-btn[data-ir="${grupo}"]`);
-  if (activo) activo.classList.add("on");
+  document.querySelectorAll(".nav-btn, .tab").forEach(b => b.classList.remove("on"));
+  const grupo = { portada: "portada", lector: "lector", inicio: "inicio", test: "inicio", resultado: "inicio", falladas: "falladas" }[nombre];
+  const sel = grupo === "portada" ? '[data-vista="portada"]' : grupo === "lector" ? "[data-leer]" : `[data-ir="${grupo}"]`;
+  document.querySelectorAll(`.nav-btn${sel}, .tab${sel}`).forEach(b => b.classList.add("on"));
+  document.body.dataset.vista = nombre;
   if (nombre === "inicio") pintarInicio();
   if (nombre === "falladas") pintarFalladas();
   if (nombre === "portada" && typeof pintarPortada === "function") pintarPortada();
@@ -79,6 +80,8 @@ function numFalladas() {
 function actualizarContadores() {
   const n = numFalladas();
   document.getElementById("navFalladas").textContent = n;
+  const tf = document.getElementById("tabFalladas");
+  if (tf) { tf.textContent = n; tf.classList.toggle("oculto", !n); }
   document.getElementById("modoFalladas").textContent = n;
 }
 

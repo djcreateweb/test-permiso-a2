@@ -26,6 +26,16 @@ function guardar(clave, v) {
 
 let leido = leer(CLAVE_LEIDO, {});
 Object.keys(leido).forEach(k => { if (!Array.isArray(leido[k])) leido[k] = []; });
+// v2: se añadió el capítulo 19 (trucos); el banco y el plan pasan a 20 y 21
+if (!leer("a2_teoria_v2", false)) {
+  if (leido[20]) leido[21] = leido[20];
+  if (leido[19]) leido[20] = leido[19];
+  delete leido[19];
+  guardar(CLAVE_LEIDO, leido);
+  const pv = leer(CLAVE_POS_TEORIA, null);
+  if (pv && pv.c >= 18) { pv.c += 1; guardar(CLAVE_POS_TEORIA, pv); }
+  guardar("a2_teoria_v2", true);
+}
 
 function pctCap(cap) {
   const v = (leido[cap.n] || []).filter(p => p < cap.paginas.length).length;
@@ -71,11 +81,13 @@ function bloqueHTML(b) {
   }
   if (b.t === "tabla") {
     const filas = b.filas.slice();
-    let cab = "";
-    if (b.cab) cab = `<thead><tr>${filas.shift().map(c => `<th>${c}</th>`).join("")}</tr></thead>`;
+    let cab = "", etiq = [];
+    if (b.cab) { etiq = filas.shift(); cab = `<thead><tr>${etiq.map(c => `<th>${c}</th>`).join("")}</tr></thead>`; }
     const cols = b.filas[0].length;
-    const cuerpo = `<tbody>${filas.map(f => `<tr>${f.map(c => `<td>${enlazar(c)}</td>`).join("")}</tr>`).join("")}</tbody>`;
-    return `<div class="tabla-env"><table class="${cols <= 2 ? "estrecha" : ""}">${cab}${cuerpo}</table></div>`;
+    const apilar = b.cab && cols >= 3;
+    const attr = j => apilar && etiq[j] ? ` data-l="${String(etiq[j]).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;")}"` : "";
+    const cuerpo = `<tbody>${filas.map(f => `<tr>${f.map((c, j) => `<td${attr(j)}>${enlazar(c)}</td>`).join("")}</tr>`).join("")}</tbody>`;
+    return `<div class="tabla-env${apilar ? " apilable" : ""}"><table class="${cols <= 2 ? "estrecha" : ""}">${cab}${cuerpo}</table></div>`;
   }
   if (b.t === "imgs") {
     const senales = b.items.length >= 3 && b.items.every(i => i.ancho < 0.16);
@@ -246,6 +258,17 @@ function abrirVisor(src, cap) {
 function cerrarVisor() { visor.classList.add("oculto"); }
 
 document.getElementById("btnLeer").addEventListener("click", () => ir(0, 0, 1));
+function seguirLeyendo() {
+  const g = leer(CLAVE_POS_TEORIA, null);
+  if (g && CAPITULOS[g.c]) ir(g.c, Math.min(g.p, CAPITULOS[g.c].paginas.length - 1), 1);
+  else ir(0, 0, 1);
+}
+document.querySelectorAll("[data-leer]").forEach(b => b.addEventListener("click", () => {
+  if (vLector.classList.contains("activa")) { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+  const go = () => { clearInterval(temporizador); seguirLeyendo(); };
+  if (vistas.test.classList.contains("activa") && sesion && sesion.respuestas.length) confirmar("¿Salir del test? Las falladas ya están guardadas.", go);
+  else go();
+}));
 document.getElementById("btnCapitulos").addEventListener("click", abrirPanel);
 document.getElementById("btnCerrarPanel").addEventListener("click", cerrarPanel);
 panel.addEventListener("click", e => { if (e.target === panel) cerrarPanel(); });

@@ -2,7 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Permiso A2">
+<link rel="apple-touch-icon" href="icono-180.png">
+<link rel="manifest" href="manifest.json">
 <title>Permiso A2 · Teoría y test · David Alcaraz</title>
 <meta name="description" content="Toda la teoría del examen específico de moto A2 de la DGT para leer por capítulos y el test de 200 preguntas con corrección y repaso de falladas.">
 <meta name="theme-color" content="#0B2545">
@@ -14,9 +20,10 @@
 <header class="barra">
   <button class="marca" id="btnMarca" type="button"><span class="logo">A2</span><span class="marca-texto">Permiso A2</span></button>
   <nav class="nav">
-    <button type="button" class="nav-btn" data-vista="portada">Teoría</button>
-    <button type="button" class="nav-btn" data-ir="inicio">Test</button>
-    <button type="button" class="nav-btn" data-ir="falladas">Falladas <span class="contador" id="navFalladas">0</span></button>
+    <button type="button" class="nav-btn" data-vista="portada"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</button>
+    <button type="button" class="nav-btn" data-leer><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H11v17H5.5A1.5 1.5 0 0 0 4 21.5zM20 4.5A1.5 1.5 0 0 0 18.5 3H13v17h5.5a1.5 1.5 0 0 1 1.5 1.5z"/></svg>Leer</button>
+    <button type="button" class="nav-btn" data-ir="inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2.5 2.5L16 9M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg>Test</button>
+    <button type="button" class="nav-btn" data-ir="falladas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9 9l6 6M15 9l-6 6"/></svg>Falladas <span class="contador" id="navFalladas">0</span></button>
     <a class="nav-btn nav-desc" href="Guia_Teorico_A2.pdf" download>PDF</a>
   </nav>
 </header>
@@ -48,7 +55,7 @@
         <li>Los recuadros <b>Clave de examen</b> resumen lo que la DGT pregunta con más frecuencia; los de <b>Pregunta trampa</b>, los fallos más habituales; los de <b>Novedad 2026</b>, lo que cambió el 1 de octubre de 2026.</li>
         <li>Toca cualquier foto para verla en grande.</li>
         <li>Cada capítulo muestra el porcentaje que has leído según las páginas que hayas abierto.</li>
-        <li>Al final de cada capítulo tienes un test solo con las preguntas de ese tema. Termina con el repaso exprés (capítulo 18) y el examen DGT.</li>
+        <li>Al final de cada capítulo tienes un test solo con las preguntas de ese tema. Termina con el repaso exprés (capítulo 18), los trucos contra las trampas de la DGT (capítulo 19) y el examen DGT.</li>
       </ul>
     </div>
 
@@ -200,6 +207,13 @@
     </div>
   </div>
 </div>
+
+<nav class="tabbar" aria-label="Navegación principal">
+  <button type="button" class="tab" data-vista="portada"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span>Inicio</span></button>
+  <button type="button" class="tab" data-leer><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H11v17H5.5A1.5 1.5 0 0 0 4 21.5zM20 4.5A1.5 1.5 0 0 0 18.5 3H13v17h5.5a1.5 1.5 0 0 1 1.5 1.5z"/></svg><span>Leer</span></button>
+  <button type="button" class="tab" data-ir="inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2.5 2.5L16 9M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg><span>Test</span></button>
+  <button type="button" class="tab" data-ir="falladas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9 9l6 6M15 9l-6 6"/></svg><span>Falladas</span><i class="contador tab-cont" id="tabFalladas">0</i></button>
+</nav>
 
 <script src="capitulos.js"></script>
 <script src="preguntas.js"></script>
