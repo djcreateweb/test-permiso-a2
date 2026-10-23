@@ -60,34 +60,74 @@ function paginar(cap) {
   return paginas;
 }
 
-CAPITULOS.forEach(c => { c.paginas = paginar(c); });
+CAPITULOS.forEach((c, ci) => { c.bloques.forEach((b, bi) => { b._id = `${ci}-${bi}`; }); c.paginas = paginar(c); });
 
 const CLAVE_KW = "a2_subrayado_v1";
-const KW_PALABRAS = ["en ningún caso", "en todo caso", "como mínimo", "como máximo", "al menos", "no más de", "fuera de poblado", "dentro de poblado", "en poblado",
+const KW_PALABRAS = ["en ningún caso", "en todo caso", "como mínimo", "como máximo", "al menos", "no más de",
   "obligatoriamente", "obligatorias", "obligatorios", "obligatoria", "obligatorio", "obligación", "prohibidas", "prohibidos", "prohibida", "prohibido", "prohibición",
-  "siempre", "nunca", "jamás", "solamente", "únicamente", "exclusivamente", "sólo", "solo", "salvo", "excepto", "excepción", "excepcionalmente",
-  "no deberá", "no debe", "deberán", "deberá", "deben", "debe", "no podrá", "no puede", "podrán", "podrá", "pueden", "puede",
-  "permitidas", "permitidos", "permitida", "permitido", "recomendable", "aconsejable", "prioridad", "infracción", "sanción", "multa",
-  "interurbanas", "interurbana", "urbanas", "urbana", "autopistas", "autopista", "autovías", "autovía", "arcén", "noveles", "novel", "mínima", "mínimo", "máxima", "máximo"];
-const KW_RE = new RegExp(`(?<![\\p{L}\\d])(${KW_PALABRAS.map(w => w.replace(/ /g, "\\s+")).join("|")})(?![\\p{L}])`, "giu");
+  "siempre", "nunca", "jamás", "solamente", "únicamente", "exclusivamente", "sólo", "solo", "salvo", "excepto", "excepcionalmente",
+  "no deberá", "no debe", "deberán", "deberá", "deben", "debe", "no podrá", "no puede", "no está permitido", "infracción", "sanción", "multa"];
+const LUGAR_PALABRAS = ["vías interurbanas", "vía interurbana", "vías urbanas", "vía urbana", "fuera de poblado", "dentro de poblado", "en poblado", "en ciudad",
+  "interurbanas", "interurbana", "urbanas", "urbana", "autopistas", "autopista", "autovías", "autovía", "arcén", "glorietas", "glorieta", "túneles", "túnel",
+  "pasajeros", "pasajero", "ciclomotores", "ciclomotor", "noveles", "novel", "de noche", "con lluvia"];
+const reLista = l => new RegExp(`(?<![\\p{L}\\d])(${l.map(w => w.replace(/ /g, "\\s+")).join("|")})(?![\\p{L}])`, "giu");
+const KW_RE = reLista(KW_PALABRAS);
+const LUGAR_RE = reLista(LUGAR_PALABRAS);
 const NUM_RE = /(?<![\p{L}\d.,])(\d+(?:[.,]\d+)?(?:\s?[-–]\s?\d+(?:[.,]\d+)?)?\s?(?:km\/h|kW\/kg|kW|kg|cm³|cm3|mm|cm|metros|metro|m|mg\/l|g\/l|años|año|meses|mes|días|día|horas|hora|h|segundos|segundo|s|minutos|min|puntos|punto|€|euros|%|ºC|°C|bar|CV|cc))(?![\p{L}\d³\/])/gu;
+const ENTIDADES = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&nbsp;": " " };
+const MARCAS_MANUALES = typeof MARCAS === "object" ? MARCAS : {};
 let subrayado = leer(CLAVE_KW, true);
 
-function resaltar(html) {
+function resaltar(html, id) {
+  const tokens = html.split(/(<[^>]+>)/);
+  const unidades = [];
   let dentroA = 0;
-  return html.split(/(<[^>]+>)/).map(t => {
+  tokens.forEach((t, ti) => {
     if (t.startsWith("<")) {
       if (/^<a[\s>]/i.test(t)) dentroA++;
       else if (/^<\/a>/i.test(t)) dentroA = Math.max(0, dentroA - 1);
-      return t;
+      return;
     }
-    if (dentroA || !t) return t;
-    return t.replace(NUM_RE, '<span class="kwn">$1</span>').split(/(<span class="kwn">.*?<\/span>)/).map(u => u.startsWith("<span") ? u : u.replace(KW_RE, '<span class="kw">$1</span>')).join("");
-  }).join("");
+    (t.match(/&[#\w]+;|[\s\S]/g) || []).forEach(raw => unidades.push({ raw, ch: raw.length > 1 ? (ENTIDADES[raw] || "·") : raw, ti, a: dentroA > 0 }));
+  });
+  const plano = unidades.map(u => u.ch).join("");
+  const color = new Array(unidades.length).fill(null);
+  const libre = (s, e) => { for (let i = s; i < e; i++) if (color[i] || unidades[i].a) return false; return true; };
+  const pintar = (s, e, c) => { if (e > s && libre(s, e)) for (let i = s; i < e; i++) color[i] = c; };
+  (MARCAS_MANUALES[id] || []).forEach(([frag, c]) => {
+    let s = plano.indexOf(frag);
+    if (s < 0) s = plano.toLowerCase().indexOf(frag.toLowerCase());
+    if (s >= 0) pintar(s, s + frag.length, c);
+  });
+  [[NUM_RE, "g"], [KW_RE, "r"], [LUGAR_RE, "b"]].forEach(([re, c]) => {
+    re.lastIndex = 0;
+    let m;
+    while ((m = re.exec(plano))) pintar(m.index, m.index + m[0].length, c);
+  });
+  let out = "", abierto = null, ui = 0;
+  tokens.forEach(t => {
+    if (t.startsWith("<")) {
+      if (abierto) { out += "</mark>"; abierto = null; }
+      out += t;
+      return;
+    }
+    const n = (t.match(/&[#\w]+;|[\s\S]/g) || []).length;
+    for (let k = 0; k < n; k++, ui++) {
+      const c = color[ui];
+      if (c !== abierto) {
+        if (abierto) out += "</mark>";
+        if (c) out += `<mark class="m-${c}">`;
+        abierto = c;
+      }
+      out += unidades[ui].raw;
+    }
+  });
+  if (abierto) out += "</mark>";
+  return out;
 }
 
-function enlazar(html) {
-  return resaltar(enlazarBase(html));
+function enlazar(html, id) {
+  return resaltar(enlazarBase(html), id);
 }
 
 function enlazarBase(html) {
@@ -101,11 +141,11 @@ function enlazarBase(html) {
 function bloqueHTML(b) {
   if (b.t === "h2") return `<h2>${b.txt}</h2>`;
   if (b.t === "h3") return `<h3>${b.txt}</h3>`;
-  if (b.t === "p") return `<p class="${b.sz && b.sz < 9 ? "nota" : ""}">${enlazar(b.html)}</p>`;
-  if (b.t === "ul") return `<ul>${b.items.map(i => `<li>${enlazar(i)}</li>`).join("")}</ul>`;
+  if (b.t === "p") return `<p class="${b.sz && b.sz < 9 ? "nota" : ""}">${enlazar(b.html, `${b._id}-p-0`)}</p>`;
+  if (b.t === "ul") return `<ul>${b.items.map((i, k) => `<li>${enlazar(i, `${b._id}-ul-${k}`)}</li>`).join("")}</ul>`;
   if (b.t === "box") {
     const titulo = b.titulo ? `<span>· ${b.titulo}</span>` : "";
-    return `<div class="recuadro ${b.kind}"><div class="r-cab">${ETIQUETAS[b.kind]}${titulo}</div><div class="r-cuerpo">${b.items.map(i => `<p>${enlazar(i)}</p>`).join("")}</div></div>`;
+    return `<div class="recuadro ${b.kind}"><div class="r-cab">${ETIQUETAS[b.kind]}${titulo}</div><div class="r-cuerpo">${b.items.map((i, k) => `<p>${enlazar(i, `${b._id}-box-${k}`)}</p>`).join("")}</div></div>`;
   }
   if (b.t === "tabla") {
     const filas = b.filas.slice();
@@ -114,7 +154,7 @@ function bloqueHTML(b) {
     const cols = b.filas[0].length;
     const apilar = b.cab && cols >= 3;
     const attr = j => apilar && etiq[j] ? ` data-l="${String(etiq[j]).replace(/<[^>]+>/g, "").replace(/"/g, "&quot;")}"` : "";
-    const cuerpo = `<tbody>${filas.map(f => `<tr>${f.map((c, j) => `<td${attr(j)}>${enlazar(c)}</td>`).join("")}</tr>`).join("")}</tbody>`;
+    const cuerpo = `<tbody>${filas.map((f, fi) => `<tr>${f.map((c, j) => `<td${attr(j)}>${enlazar(c, `${b._id}-td-${(fi + (b.cab ? 1 : 0)) * 100 + j}`)}</td>`).join("")}</tr>`).join("")}</tbody>`;
     return `<div class="tabla-env${apilar ? " apilable" : ""}"><table class="${cols <= 2 ? "estrecha" : ""}">${cab}${cuerpo}</table></div>`;
   }
   if (b.t === "imgs") {
@@ -301,6 +341,7 @@ document.getElementById("btnCapitulos").addEventListener("click", abrirPanel);
 const btnKw = document.getElementById("btnKw");
 function aplicarSubrayado() {
   hoja.classList.toggle("sin-kw", !subrayado);
+  document.getElementById("leyenda").classList.toggle("oculto", !subrayado);
   btnKw.setAttribute("aria-pressed", subrayado ? "true" : "false");
   btnKw.title = subrayado ? "Quitar subrayado de palabras clave" : "Subrayar palabras clave";
 }

@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#0B2545">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230B2545'/><text x='32' y='43' font-size='30' font-family='Arial' font-weight='700' fill='%23E4572E' text-anchor='middle'>A2</text></svg>">
 <link rel="stylesheet" href="../estilos.css?v=20261023">
-<link rel="stylesheet" href="lector.css?v=20261023c">
+<link rel="stylesheet" href="lector.css?v=20261023d">
 </head>
 <body>
 <header class="barra">
@@ -51,7 +51,7 @@
       <ul>
         <li>Lee los capítulos en orden la primera vez. Pasa de página con las flechas, deslizando el dedo o con las teclas ← y →.</li>
         <li>Los recuadros <b>Clave de examen</b> resumen lo que la DGT pregunta con más frecuencia; los de <b>Pregunta trampa</b>, los fallos más habituales; los de <b>Novedad 2026</b>, lo que cambió el 1 de octubre de 2026.</li>
-        <li>Las <span class="kw">palabras clave</span> (obligatorio, prohibido, siempre, solo, salvo, interurbana…) van subrayadas y las <span class="kwn">cifras</span> (20 km/h, 1,5 m, 4 puntos…) resaltadas. Puedes quitarlo con el botón <b>Subrayado</b>.</li>
+        <li>Todo el temario está subrayado con rotulador: <mark class="m-y">amarillo</mark> la idea clave, <mark class="m-g">verde</mark> las cifras y datos, <mark class="m-r">rosa</mark> obligaciones, prohibiciones y trampas, y <mark class="m-b">azul</mark> dónde, quién y excepciones. Puedes quitarlo con el botón <b>Subrayado</b>.</li>
         <li>Toca cualquier foto para verla en grande.</li>
         <li>Pulsa <b>Entrar</b> y crea tu usuario y contraseña para guardar el progreso en tu cuenta y seguir en el ordenador o en el móvil.</li>
         <li>Cada capítulo muestra el porcentaje que has leído según las páginas que hayas abierto.</li>
@@ -77,6 +77,7 @@
       </div>
     </div>
     <div class="progreso"><div id="lBarra"></div></div>
+    <div class="leyenda" id="leyenda"><mark class="m-y">Idea clave</mark><mark class="m-g">Cifras y datos</mark><mark class="m-r">Obligación · prohibición · trampa</mark><mark class="m-b">Dónde · quién · excepción</mark></div>
     <article class="hoja" id="hoja"></article>
     <nav class="l-nav" aria-label="Pasar página">
       <button type="button" class="flecha" id="btnAnt" aria-label="Página anterior"><span aria-hidden="true">←</span><small>Anterior</small></button>
@@ -246,7 +247,8 @@
 <script src="capitulos.js?v=20261023"></script>
 <script src="preguntas.js?v=20261023"></script>
 <script src="test.js?v=20261023"></script>
-<script src="lector.js?v=20261023c"></script>
+<script src="marcas.js?v=1"></script>
+<script src="lector.js?v=20261023d"></script>
 <script src="firebase-config.js?v=20261023"></script>
 <script>if (window.FIREBASE_CONFIG) { const s = document.createElement("script"); s.type = "module"; s.src = "cuenta.js?v=1"; document.body.appendChild(s); }</script>
 </body>
