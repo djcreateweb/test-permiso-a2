@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test Permiso A2 · David Alcaraz</title>
+<meta name="description" content="200 preguntas tipo test del examen teórico específico de moto A2 de la DGT, con explicaciones y repaso de falladas.">
+<meta name="theme-color" content="#0B2545">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230B2545'/><text x='32' y='43' font-size='30' font-family='Arial' font-weight='700' fill='%23E4572E' text-anchor='middle'>A2</text></svg>">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<header class="barra">
+  <button class="marca" id="btnInicio" type="button"><span class="logo">A2</span><span class="marca-texto">Test Permiso A2</span></button>
+  <nav class="nav">
+    <button type="button" class="nav-btn" data-ir="inicio">Inicio</button>
+    <button type="button" class="nav-btn" data-ir="falladas">Falladas <span class="contador" id="navFalladas">0</span></button>
+  </nav>
+</header>
+
+<main id="app">
+
+  <section id="vInicio" class="vista activa">
+    <div class="hero">
+      <p class="sobre">Examen teórico específico de moto · Normativa octubre 2026</p>
+      <h1>Practica como en la autoescuela</h1>
+      <p class="intro">200 preguntas con imagen y tres respuestas. Verde si aciertas, rojo si fallas y la explicación de por qué. Lo que falles se guarda en <b>Falladas</b> para repasarlo.</p>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="modos">
+      <button class="modo destacado" data-modo="examen" type="button">
+        <span class="modo-tit">Examen DGT</span>
+        <span class="modo-sub">20 preguntas al azar · 20 minutos · máximo 2 fallos</span>
+      </button>
+      <button class="modo" data-modo="falladas" type="button">
+        <span class="modo-tit">Repasar falladas <span class="contador" id="modoFalladas">0</span></span>
+        <span class="modo-sub">Solo las que has fallado. Si aciertas una, sale de la lista</span>
+      </button>
+      <button class="modo" data-modo="trampa" type="button">
+        <span class="modo-tit">Las más falladas ★</span>
+        <span class="modo-sub">Preguntas trampa que más suspenden</span>
+      </button>
+      <button class="modo" data-modo="todas" type="button">
+        <span class="modo-tit">Las 200 seguidas</span>
+        <span class="modo-sub">Todo el banco en orden, desde donde lo dejaste</span>
+      </button>
+      <button class="modo" data-modo="azar" type="button">
+        <span class="modo-tit">Práctica libre</span>
+        <span class="modo-sub">Preguntas al azar sin límite</span>
+      </button>
+    </div>
+
+    <h2 class="sec">Por temas</h2>
+    <div class="temas" id="temas"></div>
+
+    <p class="pie-nota">Tu progreso se guarda en este navegador. Preguntas de elaboración propia basadas en el temario de la DGT; no sustituyen a los tests oficiales.</p>
+  </section>
+
+  <section id="vTest" class="vista">
+    <div class="test-cab">
+      <div class="test-info">
+        <span id="tModo" class="chip"></span>
+        <span id="tNum" class="tnum"></span>
+      </div>
+      <div class="test-der">
+        <span id="tReloj" class="reloj oculto"></span>
+        <span id="tMarcador" class="marcador"></span>
+        <button type="button" id="btnSalir" class="btn-sec">Salir</button>
+      </div>
+    </div>
+    <div class="progreso"><div id="tBarra"></div></div>
+
+    <article class="tarjeta">
+      <div class="figura"><img id="tImg" alt=""></div>
+      <div class="cuerpo">
+        <p class="tema-chip" id="tTema"></p>
+        <h2 id="tPregunta" class="pregunta"></h2>
+        <div id="tOpciones" class="opciones"></div>
+        <div id="tFeedback" class="feedback oculto" aria-live="polite"></div>
+        <div class="acciones">
+          <button type="button" id="btnSiguiente" class="btn-pri" disabled>Siguiente</button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section id="vResultado" class="vista">
+    <div class="resultado">
+      <p class="sobre" id="rModo"></p>
+      <h1 id="rTitulo"></h1>
+      <p id="rTexto" class="intro"></p>
+      <div class="r-num"><span id="rAciertos"></span><small>aciertos</small></div>
+      <div class="r-acc">
+        <button type="button" class="btn-pri" id="btnRepetir">Otro test</button>
+        <button type="button" class="btn-sec" id="btnVerFalladas">Ver falladas</button>
+        <button type="button" class="btn-sec" data-ir="inicio">Inicio</button>
+      </div>
+      <div id="rLista" class="r-lista"></div>
+    </div>
+  </section>
+
+  <section id="vFalladas" class="vista">
+    <div class="fall-cab">
+      <div>
+        <h1>Preguntas falladas</h1>
+        <p class="intro" id="fTexto"></p>
+      </div>
+      <div class="fall-acc">
+        <button type="button" class="btn-pri" id="btnRepasar">Repasar falladas</button>
+        <button type="button" class="btn-sec" id="btnVaciar">Vaciar lista</button>
+      </div>
+    </div>
+    <div id="fLista" class="f-lista"></div>
+  </section>
+
+</main>
+
+<div id="dialogo" class="dialogo oculto" role="dialog" aria-modal="true">
+  <div class="dialogo-caja">
+    <p id="dTexto"></p>
+    <div class="dialogo-acc">
+      <button type="button" class="btn-sec" id="dNo">Cancelar</button>
+      <button type="button" class="btn-pri" id="dSi">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<script src="preguntas.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
