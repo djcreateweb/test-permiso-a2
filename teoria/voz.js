@@ -55,9 +55,11 @@
       o.textContent = `${v.name.replace(/Microsoft |\(.*?\)| - Spanish.*$/g, "").trim() || v.name} · ${v.lang}`;
       selVoz.appendChild(o);
     });
-    if (INDICE && (!prefs.voz || prefs.voz === "neural" || !lista.some(v => v.name === prefs.voz))) selVoz.value = "neural";
+    const google = lista.find(v => /^google/i.test(v.name) && /^es[-_]es/i.test(v.lang));
+    if (google) selVoz.value = google.name;
     else if (prefs.voz && lista.some(v => v.name === prefs.voz)) selVoz.value = prefs.voz;
-    const femenina = lista.some(v => tiene(v.name.toLowerCase(), FEMENINAS));
+    selVoz.closest("label").classList.toggle("oculto", !!google);
+    const femenina = lista.some(v => tiene(v.name.toLowerCase(), FEMENINAS) || /^google/i.test(v.name));
     aviso.textContent = INDICE ? "" : !lista.length
       ? "Tu dispositivo no tiene voces en español. Instálalas en los ajustes de voz del sistema."
       : femenina ? "" : "No encuentro una voz femenina en español en este dispositivo. En iPhone: Ajustes › Accesibilidad › Contenido leído › Voces › Español › Mónica.";
@@ -146,7 +148,6 @@
     return h.toString(36);
   }
   window.__vozElementos = () => elementos().map(e => e.txt);
-  fetch("audio/indice.json?v=" + (window.AUDIO_VER || "1")).then(r => r.ok ? r.json() : null).then(j => { INDICE = j; cargarVoces(); }).catch(() => {});
   function recoger() {
     const cap = CAPITULOS[pos.c];
     const clave = `c${cap.n}-p${pos.p + 1}`;
