@@ -323,3 +323,55 @@ mark[class^="m-"]{background:none;background-repeat:no-repeat;background-size:10
 @keyframes txIn{0%{opacity:0;filter:blur(12px);transform:translateY(18px) scale(.97)}55%{opacity:1}100%{opacity:1;filter:blur(0);transform:none}}
 .tx-barrido{position:fixed;inset:0;z-index:70;pointer-events:none;background:radial-gradient(circle at var(--x) var(--y),var(--acc) 0,var(--acc) 18%,var(--navy) 62%);clip-path:circle(0 at var(--x) var(--y));animation:txBarrido .68s cubic-bezier(.65,0,.35,1) forwards}
 @keyframes txBarrido{0%{clip-path:circle(0 at var(--x) var(--y));opacity:.92}42%{clip-path:circle(150% at var(--x) var(--y));opacity:.92}100%{clip-path:circle(150% at var(--x) var(--y));opacity:0}}
+/* microinteracciones: toques, barras y círculos */
+.tx-js :is(button,a.btn-sec,a.btn-pri,a.nav-btn,.cap,.tema,.modo,.op,.tab,.flecha){transition:transform .22s cubic-bezier(.34,1.56,.64,1),background-color .18s,border-color .18s,box-shadow .2s,color .18s,opacity .2s,width .35s cubic-bezier(.34,1.3,.64,1)}
+.tx-js :is(button,a.btn-sec,a.btn-pri,a.nav-btn,.cap,.tema,.modo,.op,.tab):not(:disabled):active{transform:scale(.955);transition-duration:.08s}
+.tx-js .flecha:not(:disabled):active{transform:scale(.88);transition-duration:.08s}
+.tx-onda{position:absolute;border-radius:50%;background:currentColor;opacity:.22;transform:scale(0);pointer-events:none;animation:txOnda .65s cubic-bezier(.2,.7,.3,1) forwards;z-index:0}
+@keyframes txOnda{to{transform:scale(1);opacity:0}}
+.tx-mini{animation:txMini .46s cubic-bezier(.16,.84,.3,1) both;animation-delay:var(--tx-d,0ms)}
+@keyframes txMini{0%{opacity:0;filter:blur(7px);transform:translate(var(--tx-x,0),10px)}100%{opacity:1;filter:blur(0);transform:none}}
+.tx-bump{animation:txBump .42s cubic-bezier(.34,1.8,.64,1)}
+@keyframes txBump{0%{transform:scale(1)}40%{transform:scale(1.22)}100%{transform:scale(1)}}
+
+.progreso div,.progreso-total div,.pct-barra>span{position:relative;overflow:hidden;transition:width .7s cubic-bezier(.34,1.15,.64,1)!important}
+.tx-brillo::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 0,rgba(255,255,255,.65) 45%,transparent 70%);transform:translateX(-120%);animation:txBrillo .9s ease-out .15s forwards}
+@keyframes txBrillo{to{transform:translateX(120%)}}
+
+.puntos button{transition:width .38s cubic-bezier(.34,1.4,.64,1),background-color .3s,transform .2s!important}
+.puntos button.hecha{background:var(--ok);opacity:.55}
+.puntos button.on{width:26px!important;border-radius:999px;transform:none!important;background:var(--acc)!important;opacity:1}
+.puntos button:active{transform:scale(.8)!important}
+.tx-empuje-der span{display:inline-block;animation:txEmpujeD .45s cubic-bezier(.34,1.6,.64,1)}
+.tx-empuje-izq span{display:inline-block;animation:txEmpujeI .45s cubic-bezier(.34,1.6,.64,1)}
+@keyframes txEmpujeD{0%{transform:translateX(0)}35%{transform:translateX(6px)}100%{transform:none}}
+@keyframes txEmpujeI{0%{transform:translateX(0)}35%{transform:translateX(-6px)}100%{transform:none}}
+
+.tx-js .op .letra{transition:transform .3s cubic-bezier(.34,1.8,.64,1),background-color .25s,color .25s}
+.tx-js .op.correcta{animation:txAcierto .6s cubic-bezier(.34,1.56,.64,1)}
+.tx-js .op.correcta .letra{transform:scale(1.18);box-shadow:0 0 0 0 rgba(30,158,90,.55);animation:txAro .8s ease-out .05s}
+@keyframes txAcierto{0%{transform:scale(1)}35%{transform:scale(1.03)}100%{transform:scale(1)}}
+@keyframes txAro{to{box-shadow:0 0 0 14px rgba(30,158,90,0)}}
+.tx-js .op.incorrecta{animation:txFallo .5s cubic-bezier(.36,.07,.19,.97)}
+.tx-js .op.incorrecta .letra{transform:scale(1.1)}
+@keyframes txFallo{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
+.tx-js .op.apagada{transform:scale(.985)}
+.tx-js .feedback.ok,.tx-js .feedback.mal{animation:txMini .5s cubic-bezier(.16,.84,.3,1) both .12s}
+
+.cap.leido .num{animation:txBump .5s cubic-bezier(.34,1.8,.64,1)}
+.tx-js .dialogo:not(.oculto){animation:txFondo .25s ease both}
+.tx-js .dialogo:not(.oculto) .dialogo-caja{animation:txDialogo .42s cubic-bezier(.34,1.4,.64,1) both}
+@keyframes txFondo{from{opacity:0}to{opacity:1}}
+@keyframes txDialogo{from{opacity:0;transform:translateY(18px) scale(.92);filter:blur(6px)}to{opacity:1;transform:none;filter:blur(0)}}
+.tx-js .panel:not(.oculto){animation:txFondo .25s ease both}
+.tx-js .panel:not(.oculto) .panel-caja{animation:txPanel .45s cubic-bezier(.16,.84,.3,1) both}
+@keyframes txPanel{from{transform:translateX(100%)}to{transform:none}}
+.tx-js .visor:not(.oculto){animation:txFondo .22s ease both}
+.tx-js .visor:not(.oculto) img{animation:txZoom .42s cubic-bezier(.34,1.3,.64,1) both}
+@keyframes txZoom{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+.tx-js .voz-barra:not(.oculto){animation:txMini .4s cubic-bezier(.16,.84,.3,1) both}
+
+.tab-ind{position:absolute;left:0;top:1px;width:6px;height:6px;border-radius:50%;background:var(--acc);transition:transform .45s cubic-bezier(.34,1.5,.64,1),opacity .2s;pointer-events:none}
+.tx-js .tab.on svg{animation:txTab .5s cubic-bezier(.34,1.8,.64,1)}
+@keyframes txTab{0%{transform:scale(.7) translateY(3px)}60%{transform:scale(1.18) translateY(-2px)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){.tx-onda,.tx-mini,.tx-bump,.tx-brillo::after{animation:none!important}}
