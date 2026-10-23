@@ -33,6 +33,7 @@
     if (tiene(n, MASCULINAS)) s -= 100;
     if (tiene(n, NOVEDAD)) s -= 6;
     if (/premium|enhanced|mejorada|natural|neural|online/.test(n)) s += 3;
+    if (n.startsWith("google") && /^es[-_]es/i.test(v.lang)) s += 5;
     return s;
   }
   function voces() {
@@ -51,7 +52,7 @@
     lista.forEach(v => {
       const o = document.createElement("option");
       o.value = v.name;
-      o.textContent = `${v.name.replace(/Microsoft |Google |\(.*?\)/g, "").trim() || v.name} · ${v.lang}`;
+      o.textContent = `${v.name.replace(/Microsoft |\(.*?\)| - Spanish.*$/g, "").trim() || v.name} · ${v.lang}`;
       selVoz.appendChild(o);
     });
     if (INDICE && (!prefs.voz || prefs.voz === "neural" || !lista.some(v => v.name === prefs.voz))) selVoz.value = "neural";
