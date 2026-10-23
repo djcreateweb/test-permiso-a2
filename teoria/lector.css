@@ -231,3 +231,8 @@ button,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   .dialogo{align-items:end;padding:0}
   .dialogo-caja{max-width:none;border-radius:18px 18px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
 }
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px;margin-top:12px;border:2px solid var(--linea);border-radius:10px;background:#fff;color:#1F1F1F;font-weight:700}
+.btn-google:hover{border-color:#9AA6B8}
+.btn-google svg{width:20px;height:20px}
+.c-sep{display:flex;align-items:center;gap:10px;margin:14px 0 2px;color:var(--suave);font-size:.8rem}
+.c-sep::before,.c-sep::after{content:"";flex:1;height:1px;background:var(--linea)}

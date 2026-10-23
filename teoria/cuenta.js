@@ -1,7 +1,7 @@
 // Inicio de sesión con usuario y contraseña y sincronización del progreso (Firebase).
 // Se guardan: páginas leídas, posición de lectura, falladas, estadísticas y posición en "Las 200 seguidas".
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile }
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -177,6 +177,19 @@ form.addEventListener("submit", async e => {
   } finally { enviar.disabled = false; }
 });
 
+const proveedor = new GoogleAuthProvider();
+proveedor.setCustomParameters({ prompt: "select_account" });
+document.getElementById("cGoogle").addEventListener("click", () => {
+  err.textContent = "";
+  signInWithPopup(auth, proveedor).catch(x => {
+    if (x.code === "auth/popup-blocked" || x.code === "auth/operation-not-supported-in-this-environment") return signInWithRedirect(auth, proveedor);
+    if (x.code === "auth/popup-closed-by-user" || x.code === "auth/cancelled-popup-request") return;
+    if (x.code === "auth/account-exists-with-different-credential") err.textContent = "Ya tienes una cuenta con otro método de acceso.";
+    else err.textContent = MENSAJES[x.code] || "No se ha podido entrar con Google. Inténtalo de nuevo.";
+  });
+});
+getRedirectResult(auth).catch(() => {});
+
 document.getElementById("cSalir").addEventListener("click", async () => {
   if (subiendo) { clearTimeout(subiendo); await subir(); }
   await signOut(auth);
@@ -186,7 +199,7 @@ document.getElementById("cSalir").addEventListener("click", async () => {
 
 onAuthStateChanged(auth, u => {
   usuario = u;
-  const nombre = u ? (u.displayName || u.email.replace(DOMINIO, "")) : "";
+  const nombre = u ? (u.displayName ? u.displayName.split(" ")[0] : (u.email || "").replace(DOMINIO, "")) : "";
   btn.querySelector("span").textContent = u ? nombre : "Entrar";
   btn.classList.toggle("dentro", !!u);
   pEntrar.classList.toggle("oculto", !!u);
