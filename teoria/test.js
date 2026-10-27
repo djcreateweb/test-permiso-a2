@@ -1,3 +1,10 @@
+const VERSION_REINICIO = "20261027";
+try {
+  if (localStorage.getItem("a2_reset_v") !== VERSION_REINICIO) {
+    ["a2_falladas_v1", "a2_stats_v1", "a2_pos_todas_v1", "a2_resp_v1"].forEach(k => localStorage.removeItem(k));
+    localStorage.setItem("a2_reset_v", VERSION_REINICIO);
+  }
+} catch (e) {}
 const CLAVE_FALLADAS = "a2_falladas_v1";
 const CLAVE_STATS = "a2_stats_v1";
 const CLAVE_POS = "a2_pos_todas_v1";

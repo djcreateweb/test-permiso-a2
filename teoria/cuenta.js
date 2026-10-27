@@ -6,7 +6,16 @@ import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWith
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const CFG = window.FIREBASE_CONFIG;
-const CLAVES = ["a2_falladas_v1", "a2_stats_v1", "a2_pos_todas_v1", "a2_teoria_leido_v1", "a2_teoria_pos_v1", "a2_resp_v1"];
+const CLAVES = ["a2_falladas_v1", "a2_stats_v1", "a2_pos_todas_v1", "a2_teoria_leido_v1", "a2_teoria_pos_v1", "a2_resp_v1", "a2_reset_v"];
+const VERSION_REINICIO = "20261027";
+const CLAVES_TEST = ["a2_falladas_v1", "a2_stats_v1", "a2_pos_todas_v1", "a2_resp_v1"];
+function limpiarRemoto(datos) {
+  if (datos.a2_reset_v === VERSION_REINICIO) return { datos, limpiado: false };
+  const d = { ...datos };
+  CLAVES_TEST.forEach(k => { delete d[k]; });
+  d.a2_reset_v = VERSION_REINICIO;
+  return { datos: d, limpiado: true };
+}
 const K_T = "a2_sync_t";      // momento del último cambio local
 const K_UID = "a2_sync_uid";  // cuenta con la que está enlazado este dispositivo
 const DOMINIO = "@permiso-a2.app";
@@ -103,8 +112,10 @@ async function sincronizar(u) {
     await subir();
   } else {
     const rem = snap.data();
+    const lim = limpiarRemoto(rem.datos || {});
+    rem.datos = lim.datos;
+    if (lim.limpiado) rem.t = Math.max(rem.t || 0, tLocal) + 1;
     if (!enlazado) {
-      // primera vez en este dispositivo: se suma lo de aquí a lo de la cuenta
       cambia = aplicar(mezclar(local, rem.datos || {}));
       ls.set(K_UID, u.uid);
       ls.set(K_T, String(Date.now()));
@@ -112,7 +123,8 @@ async function sincronizar(u) {
     } else if ((rem.t || 0) > tLocal) {
       cambia = aplicar(rem.datos || {});
       ls.set(K_T, String(rem.t));
-      estado("Progreso cargado de tu cuenta");
+      if (lim.limpiado) await subir();
+      else estado("Progreso cargado de tu cuenta");
     } else if (tLocal > (rem.t || 0)) {
       await subir();
     } else estado("Progreso sincronizado");
