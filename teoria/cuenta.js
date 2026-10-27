@@ -6,7 +6,7 @@ import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWith
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const CFG = window.FIREBASE_CONFIG;
-const CLAVES = ["a2_falladas_v1", "a2_stats_v1", "a2_pos_todas_v1", "a2_teoria_leido_v1", "a2_teoria_pos_v1"];
+const CLAVES = ["a2_falladas_v1", "a2_stats_v1", "a2_pos_todas_v1", "a2_teoria_leido_v1", "a2_teoria_pos_v1", "a2_resp_v1"];
 const K_T = "a2_sync_t";      // momento del último cambio local
 const K_UID = "a2_sync_uid";  // cuenta con la que está enlazado este dispositivo
 const DOMINIO = "@permiso-a2.app";
@@ -72,6 +72,8 @@ function mezclar(local, remoto) {
   const fall = { ...fR };
   Object.keys(fL).forEach(n => { if (!fall[n] || fL[n].veces > fall[n].veces) fall[n] = fL[n]; });
   r.a2_falladas_v1 = JSON.stringify(fall);
+  const rL = L("a2_resp_v1") || {}, rR = R("a2_resp_v1") || {};
+  r.a2_resp_v1 = JSON.stringify({ ...rR, ...rL });
   // estadísticas: la que tenga más preguntas respondidas
   const sL = L("a2_stats_v1"), sR = R("a2_stats_v1");
   if (sL && (!sR || sL.respondidas > sR.respondidas)) r.a2_stats_v1 = local.a2_stats_v1;

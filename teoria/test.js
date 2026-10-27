@@ -1,6 +1,7 @@
 const CLAVE_FALLADAS = "a2_falladas_v1";
 const CLAVE_STATS = "a2_stats_v1";
 const CLAVE_POS = "a2_pos_todas_v1";
+const CLAVE_RESP = "a2_resp_v1";
 const LETRAS = ["A", "B", "C"];
 
 const vistas = {
@@ -44,6 +45,20 @@ function guardar(clave, valor) {
 
 let falladas = leer(CLAVE_FALLADAS, {});
 let stats = leer(CLAVE_STATS, { respondidas: 0, aciertos: 0, examenes: 0, aptos: 0 });
+
+let resp = leer(CLAVE_RESP, {});
+if (Object.keys(falladas).some(n => !resp[n])) {
+  Object.keys(falladas).forEach(n => { if (!resp[n]) resp[n] = 1; });
+  guardar(CLAVE_RESP, resp);
+}
+
+function yaRespondida(n) {
+  return !!resp[n];
+}
+
+function pendientesCap(cap) {
+  return (cap.preg || []).filter(n => !yaRespondida(n));
+}
 
 function porNumero(n) {
   return PREGUNTAS.find(p => p.n === n);
@@ -113,7 +128,8 @@ function pintarInicio() {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "tema";
-      b.innerHTML = `<span></span><small>${c.preg.length} preg.</small>`;
+      const pend = pendientesCap(c).length;
+      b.innerHTML = `<span></span><small>${pend === c.preg.length ? `${pend} preg.` : `${pend} de ${c.preg.length} preg.`}</small>`;
       b.firstChild.textContent = `${c.n}. ${c.titulo}`;
       b.addEventListener("click", () => empezar("capitulo", i));
       contCap.appendChild(b);
@@ -132,7 +148,16 @@ function empezar(modo, tema) {
   if (modo === "tema") { lista = barajar(PREGUNTAS.filter(p => p.tema === tema)); titulo = tema; }
   if (modo === "capitulo") {
     const cap = CAPITULOS[tema];
-    lista = barajar(PREGUNTAS.filter(p => cap.preg.includes(p.n)));
+    const pend = pendientesCap(cap);
+    if (!pend.length) {
+      confirmar(`Ya has respondido las ${cap.preg.length} preguntas de este capítulo. ¿Empezar de nuevo con todas?`, () => {
+        cap.preg.forEach(n => { delete resp[n]; });
+        guardar(CLAVE_RESP, resp);
+        empezar("capitulo", tema);
+      });
+      return;
+    }
+    lista = barajar(PREGUNTAS.filter(p => pend.includes(p.n)));
     titulo = `Cap. ${cap.n} · ${cap.titulo}`;
   }
   if (modo === "falladas") {
@@ -218,6 +243,8 @@ function responder(idx) {
   }
   tFeedback.lastChild.textContent = p.explicacion;
   sesion.respuestas.push({ n: p.n, elegida: idx, acierto });
+  resp[p.n] = 1;
+  guardar(CLAVE_RESP, resp);
   guardar(CLAVE_FALLADAS, falladas);
   guardar(CLAVE_STATS, stats);
   if (sesion.modo === "todas") guardar(CLAVE_POS, (sesion.i + 1) % sesion.lista.length);

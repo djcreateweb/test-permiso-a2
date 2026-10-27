@@ -195,9 +195,17 @@ function bloqueHTML(b) {
   return "";
 }
 
+function etiquetaTestCap(cap) {
+  const pend = pendientesCap(cap).length;
+  const total = cap.preg.length;
+  if (pend === total) return `Test de este capítulo · ${total} preguntas`;
+  if (pend === 0) return `Test de este capítulo · completado (repetir)`;
+  return `Test de este capítulo · ${pend} ${pend === 1 ? "pregunta pendiente" : "preguntas pendientes"} de ${total}`;
+}
+
 function botonTest(cap) {
   const i = CAPITULOS.indexOf(cap);
-  if (cap.preg && cap.preg.length) return `<button type="button" class="btn-pri" data-test-cap="${i}">Test de este capítulo · ${cap.preg.length} preguntas</button>`;
+  if (cap.preg && cap.preg.length) return `<button type="button" class="btn-pri" data-test-cap="${i}">${etiquetaTestCap(cap)}</button>`;
   if (cap.modo === "trampa") return `<button type="button" class="btn-pri" data-test-modo="trampa">Practicar las más falladas ★</button>`;
   if (cap.modo === "examen") return `<button type="button" class="btn-pri" data-test-modo="examen">Hacer un examen DGT</button>`;
   return `<button type="button" class="btn-pri" data-test-modo="azar">Practicar preguntas al azar</button>`;
@@ -214,7 +222,7 @@ function paginaBanco() {
     <button type="button" data-test-modo="todas"><b>Las 200 seguidas</b><small>Todo el banco en orden</small></button>
   </div>
   <h3>Por capítulos</h3>
-  <div class="modos-t">${CAPITULOS.map((c, i) => c.preg && c.preg.length ? `<button type="button" data-test-cap="${i}"><b>${c.n}. ${c.titulo}</b><small>${c.preg.length} preguntas</small></button>` : "").join("")}</div>
+  <div class="modos-t">${CAPITULOS.map((c, i) => c.preg && c.preg.length ? `<button type="button" data-test-cap="${i}"><b>${c.n}. ${c.titulo}</b><small>${pendientesCap(c).length === c.preg.length ? `${c.preg.length} preguntas` : `${pendientesCap(c).length} pendientes de ${c.preg.length}`}</small></button>` : "").join("")}</div>
   <p><button type="button" class="btn-sec" data-ir-test="inicio">Ver todos los modos del test</button></p>
   <p class="nota">También tienes las 200 preguntas con sus soluciones en el PDF descargable, a partir de la página 49.</p>`;
 }
