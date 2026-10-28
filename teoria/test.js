@@ -202,7 +202,10 @@ function pintarPregunta() {
   tNum.textContent = `Pregunta ${sesion.i + 1} de ${total}`;
   tBarra.style.width = `${(sesion.i / total) * 100}%`;
   tMarcador.innerHTML = `<span class="v">${sesion.aciertos} ✓</span> · <span class="r">${sesion.fallos} ✗</span>`;
-  tImg.src = p.imagen;
+  const tarjeta = tImg.closest(".tarjeta");
+  tImg.parentElement.classList.toggle("oculto", !p.imagen);
+  if (tarjeta) tarjeta.classList.toggle("sin-img", !p.imagen);
+  if (p.imagen) tImg.src = p.imagen; else tImg.removeAttribute("src");
   tImg.alt = p.tema;
   tTema.textContent = `${p.tema} · nº ${p.n}${p.fallada ? " · ★ muy fallada" : ""}`;
   tPregunta.textContent = p.pregunta;
@@ -314,7 +317,8 @@ function tarjetaFallada(p, elegida, veces) {
   const div = document.createElement("div");
   div.className = "fitem";
   div.innerHTML = `<img alt="" loading="lazy"><div><h3></h3><p class="tuya"></p><p class="resp"></p><p class="exp"></p><span class="veces"></span></div>`;
-  div.querySelector("img").src = p.imagen;
+  if (p.imagen) div.querySelector("img").src = p.imagen;
+  else { div.querySelector("img").remove(); div.classList.add("sin-img"); }
   div.querySelector("h3").textContent = `${p.n}. ${p.pregunta}`;
   const tuya = div.querySelector(".tuya");
   if (elegida !== undefined && elegida !== null) tuya.textContent = `Tu respuesta: ${LETRAS[elegida]}) ${p.opciones[elegida]}`;
